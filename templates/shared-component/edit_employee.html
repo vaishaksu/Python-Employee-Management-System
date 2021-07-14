@@ -1,0 +1,486 @@
+{% extends "shared-component/only_admin_header.html" %}
+{% block title %} EMS-Edit Employee {% endblock title %}
+{% block content %}
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
+<link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" rel="stylesheet" />
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.10.0/js/bootstrap-select.min.js"></script>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.10.0/css/bootstrap-select.min.css" rel="stylesheet" />
+<script src="https://kit.fontawesome.com/dcd863c3d4.js" crossorigin="anonymous"></script>
+
+<link rel="stylesheet" type="text/css" rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+<script src="{{ url_for('static', filename='js/index.js') }}"></script>
+
+<script>
+    // Reporting Manager changes
+    function selectReportDept (val) {
+        var selected_manager = parseInt(document.getElementById("select-manager").value)
+        if ( selected_manager != 0) {
+            var managers = JSON.parse('{{ display_all_managers | tojson | safe}}');
+            var department = JSON.parse('{{ display_all_departments | tojson | safe}}');
+
+            var mgr_info = managers[managers.findIndex( mgr => mgr["_id"] === selected_manager )];
+            console.log("mgr_info::: ", mgr_info);
+
+            var selected_dept_arr = department.findIndex( dept => dept._id == mgr_info["manager_department_id"] );
+
+            var activeTab = document.getElementById('select-department'),
+                activePrevSibling = activeTab.previousElementSibling,
+                activeNextSibling = activeTab.nextElementSibling,
+                op_children = activePrevSibling.children[1].children,
+                text_change = activePrevSibling.previousElementSibling,
+                set_title_dept_name = department[selected_dept_arr].department_name;
+
+            for (var i = 0; i < op_children.length; i++) {
+                if ( i != selected_dept_arr + 1 ) {
+                      op_children[i].classList.add("disabled");
+                      op_children[i].classList.remove("selected");
+                      op_children[i].classList.remove("active");
+                } else {
+                    op_children[i].classList.remove("disabled");
+                    text_change.setAttribute("title", set_title_dept_name)
+                    text_change.children[0].innerText = set_title_dept_name
+                }
+            }
+
+            var options_selected = activeTab.options
+            for (var i = 0; i < options_selected.length; i++) {
+                if ( i != selected_dept_arr + 1 ) {
+                    options_selected[i].disabled = true;
+                    options_selected[i].removeAttribute("selected");
+                } else {
+                    options_selected[i].disabled = false;
+                    options_selected[i].setAttribute("selected", true);
+                }
+            }
+
+            if (op_children[0].classList.contains('selected')) {
+                op_children[0].classList.remove('selected')
+            }
+            op_children[selected_dept_arr + 1].classList.add('selected')
+            op_children[selected_dept_arr + 1].classList.add('active')
+        } else {
+            var activeTab = document.getElementById('select-department'),
+                activePrevSibling = activeTab.previousElementSibling,
+                activeNextSibling = activeTab.nextElementSibling,
+                op_children = activePrevSibling.children[1].children,
+                text_change = activePrevSibling.previousElementSibling;
+
+            for (var i = 0; i < op_children.length; i++) {
+                if ( i == 0 ) {
+                    op_children[i].classList.add("disabled");
+                } else {
+                    op_children[i].classList.remove("disabled");
+                }
+            }
+
+            var options_selected = activeTab.options
+            for (var i = 0; i < options_selected.length; i++) {
+                if ( i == 0 ) {
+                    options_selected[i].disabled = true;
+                    options_selected[i].setAttribute("selected", true);
+                } else {
+                    options_selected[i].disabled = false;
+                    options_selected[i].removeAttribute("selected");
+                }
+            }
+        }
+    }
+</script>
+
+    <!--suppress XmlInvalidId, XmlDuplicatedId -->
+    <div class="parent-edit-div container">
+        <h2>{{ form.first_name.label }} {{ form.last_name.label }}</h2>
+        <form method="POST" action="/editAnEmployee/{{ one_employee._id }}"  enctype="multipart/form-data">
+            <div>
+            {{ form.csrt_token }}
+
+            {% if error %}
+                {% for errors in error %}
+                    <div class="alert alert-danger" role="alert"><strong>Error:</strong> {{ errors }}</div>
+                {% endfor %}
+            {% endif %}
+            <div>
+                <div>
+                    {% if requestForm %}
+                        {{ form.is_active( class="form-check-input is-active-class", type="checkbox", onchange="isActiveCheck()" )}} {{ form.is_active.label }} {{ form.hidden_tag() }}
+                    {% else %}
+                        {{ form.is_active(class="form-check-input is-active-class",type="checkbox", checked=one_employee.is_active, onchange="isActiveCheck()" )}} {{ form.is_active.label }}  {{ form.hidden_tag() }}
+                    {% endif %}
+                </div>
+
+                <!-- Upload Picture -->
+                <div class="custom-file pt-3 pb-3">
+                    {% if one_employee.profile_image_name %}
+                        <img src="{{url_for('file', filename=one_employee['profile_image_name'])}}" class="img-call" name="profile_image" id="output" width="50px" height="50px">
+                    {% elif one_employee.gender == "Female" %}
+                        <img src="{{ url_for('static', filename='img/female_avatar.jpg') }}" class="img-call" id="output" alt="alternate" width="50px" height="50px">
+                    {% elif one_employee.gender == "Male" %}
+                        <img src="{{ url_for('static', filename='img/male_avatar.jpg') }}" class="img-call" id="output" alt="alternate" width="50px" height="50px">
+                    {% else %}
+                        <img src="{{ url_for('static', filename='img/avatar.png') }}" class="img-call" id="output" alt="alternate" width="50px" height="50px">
+                    {% endif %}
+                    <label for="customFile" class="custom-file-upload btn btn-primary checked_as-inactive" name="profile_image" onchange="loadFile(event)">
+                        <i class="fas fa-upload"></i>  Upload a Profile Picture
+                    </label>
+                    <input type="file" class="custom-file-input" id="customFile" name="profile_image" accept="image/*" onchange="loadFile(event)">
+                </div>
+
+                <ul class="nav nav-tabs">
+                   <li class="active"><a href="#a" data-toggle="tab">Personal Details</a></li>
+                   <li><a href="#b" data-toggle="tab">Official Details</a></li>
+                   <li><a href="#c" data-toggle="tab">Bank Details</a></li>
+                   <li><a href="#d" data-toggle="tab">Salary/Hourly Pay Details</a></li>
+                   <li><a href="#e" data-toggle="tab">Work Schedule</a></li>
+                </ul>
+
+                <div class="tab-content">
+                   <div class="tab-pane active pb-3 pt-3" id="a">
+                       <div class="checked_as-inactive">
+                           <!-- Firstname and lastname info-->
+                            <div class="d-flex row pt-3 checked_as-inactive">
+                                <div class="form-group col-4">
+                                    {% if requestForm %}
+                                        {{ form.first_name.label }} {{ form.first_name(class="form-control" )}} {{ form.hidden_tag() }}
+                                    {% else %}
+                                        {{ form.first_name.label }} {{ form.first_name(class="form-control", value=one_employee.first_name )}} {{ form.hidden_tag() }}
+                                    {% endif %}
+                                </div>
+                                <div class="form-group col-4">
+                                    {% if requestForm %}
+                                        {{ form.last_name.label }} {{ form.last_name(class="form-control" )}} {{ form.hidden_tag() }}
+                                    {% else %}
+                                        {{ form.last_name.label }} {{ form.last_name(class="form-control", value=one_employee.last_name)}} {{ form.hidden_tag() }}
+                                    {% endif %}
+                                </div>
+                            </div>
+
+                            <!-- Is Manager Check -->
+                            <div class="row pt-3">
+                                <div class="form-group col-4">
+                                    <div>
+                                        {% if requestForm %}
+                                            {{ form.is_manager(class="form-check-input", type="checkbox")}} {{ form.is_manager.label }} {{ form.hidden_tag() }}
+                                        {% else %}
+                                        {{ form.is_manager(class="form-check-input", type="checkbox", checked=one_employee.is_manager )}} {{ form.is_manager.label }}  {{ form.hidden_tag() }}
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Email Address and Phone Number -->
+                            <div class="d-flex row pt-3">
+                                <div class="form-group col-4">
+                                    {% if requestForm %}
+                                        {{ form.email_address.label }} {{ form.email_address(class="form-control" )}} {{ form.hidden_tag() }}
+                                    {% else %}
+                                        {{ form.email_address.label }} {{ form.email_address(class="form-control", value=one_employee.email_address )}} {{ form.hidden_tag() }}
+
+                                    {% endif %}
+                                </div>
+                                <div class="form-group col-4">
+                                    {% if requestForm %}
+                                        {{ form.phoneNumber.label }} {{ form.phoneNumber(class="form-control", type="tel" )}} {{ form.hidden_tag() }}
+                                    {% else %}
+                                        {{ form.phoneNumber.label }} {{ form.phoneNumber(class="form-control", value=one_employee.phone_number, type="tel" )}} {{ form.hidden_tag() }}
+                                    {% endif %}
+                                </div>
+                            </div>
+
+                           <!-- Date of Birth -->
+                           <div class="d-flex row pt-3">
+                               <div class="form-group col-4">
+                                   {% if requestForm %}
+                                        {{ form.date_of_birth.label }} {{ form.date_of_birth(class="datepicker form-control", max=twenty_yrs_ago )}} {{ form.hidden_tag() }}
+                                    {% else %}
+                                        {{ form.date_of_birth.label }} {{ form.date_of_birth(class="datepicker form-control", value=one_employee.date_of_birth,  max=twenty_yrs_ago) }} {{ form.hidden_tag() }}
+                                    {% endif %}
+                                </div>
+
+                               <!-- Gender-->
+                               <div class="form-group col-4">
+                                    <label for="" class="" >Gender</label>
+                                    <select class="custom-select form-control" name="gender">
+                                        {% for gender in gender_array %}
+                                            <option value="{{ gender }}"
+                                                    {% if  gender == one_employee.gender %} selected="selected" {% endif %}> {{ gender }}</option>
+                                        {% endfor %}
+                                    </select>
+                               </div>
+                           </div>
+
+                            <!-- ADDRESS-->
+                            <div class="row">
+                                <!-- Current Address -->
+                                <div class="col-6">
+                                    {% if requestForm %}
+                                            {{ form.current_address(class="form-control address-column")}} {{ form.hidden_tag() }}
+                                    {% else %}
+                                        {{ form.current_address.label }} {{ form.current_address(class="form-control address-column", value=one_employee.address.current_address) }} {{ form.hidden_tag() }}
+                                    {% endif %}
+                                </div>
+
+                                <!-- Permanent Address -->
+                                <div class="col-6">
+                                    {% if requestForm %}
+                                            {{ form.permanent_address(class="form-control address-column")}} {{ form.hidden_tag() }}
+                                    {% else %}
+                                        {{ form.permanent_address.label }} {{ form.permanent_address(class="form-control address-column", value=one_employee.address.permanent_address) }} {{ form.hidden_tag() }}
+                                    {% endif %}
+                                </div>
+                            </div>
+                       </div>
+
+                   </div>
+                   <div class="tab-pane pb-3 pt-3" id="b">
+                       <div class="checked_as-inactive">
+                           <!-- Job Position-->
+                            <div class="form-group pt-3 row">
+                                <div class="col-4">
+                                    <label for="" class="" >Job Position</label>
+                                    <select class="custom-select form-control selectpicker" data-live-search="true" name="role_id" onchange="roleChange()">
+                                         <option selected disabled>Please Select the options</option>
+                                        {% for role in display_all_roles %}
+            <!--                             <option selected >Open this select menu</option>-->
+                                        {% if requestForm %}
+                                                <option value="{{ role._id }}"{% if  role._id == requestForm.role_id %} selected="selected" {% endif %}>
+                                                    {{ role.role_name }}</option>
+                                            {% else %}
+                                                <option value="{{ role._id }}"
+                                                        {% if  role._id == one_employee.user_role_id %} selected="selected" {% endif %}>{{ role.role_name }}</option>
+                                        {% endif %}
+
+                                        {% endfor %}
+                                    </select>
+                                </div>
+
+                                <!--Employement Type-->
+                                <div class="col-4">
+                                    <label for="" class="" >Employment Type</label>
+                                    <select class="form-control selectpicker" id="select-employment_type" data-live-search="true" name="employee_type_id" onchange="employee_type_function()">
+                                         <option selected disabled>Please Select the options</option>
+                                        {% for employee_type in display_all_employee_type %}
+                                            {% if employee_type._id %}
+                                                {% if requestForm %}
+                                                    <option value="{{ employee_type._id }}"{% if  employee_type._id == requestForm.employee_type_id %} selected="selected" {% endif %}>
+                                                        {{ employee_type.employee_type_description }}</option>
+                                                {% else %}
+                                                    <option value="{{ employee_type._id }}" {% if  employee_type._id == one_employee.employee_type_id %} selected="selected"
+                                                            {% endif %}>{{ employee_type.employee_type_description }}</option>
+                                                {% endif %}
+                                            {% endif %}
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+
+                           <div class="form-group pt-3 row">
+                               <!-- Reporting Manager-->
+                                {% if one_employee._id %}
+                                        <div class="col-4">
+                                            <label for="" class="" >Reporting Manager</label>
+                                            <select class="custom-select form-control selectpicker" id="select-manager" onchange="selectReportDept()"  data-live-search="true" name="manager_id">
+                                                 <option selected disabled>Open this select menu</option>
+                                                {% for manager in display_all_managers %}
+                                                    <!-- <option selected>Open this select menu</option>-->
+                                                        {% if requestForm %}
+                                                            <option value="{{ manager._id }}"{% if  manager._id == requestForm.manager_id %} selected="selected" {% endif %}>
+                                                                {{ manager.manager_first_name }} {{ manager.manager_last_name }}</option>
+                                                        {% else %}
+                                                            {% if manager._id != one_employee._id %}
+                                                                <option value="{{ manager._id }}"
+                                                                    {% if  manager._id == one_employee.user_manager_id %} selected="selected" {% endif %}>
+                                                                   {{ manager.manager_first_name }} {{ manager.manager_last_name }}</option>
+                                                            {% endif %}
+                                                        {% endif %}
+                                                {% endfor %}
+                                            </select>
+                                        </div>
+                                {% endif %}
+
+                               <!--Department Type-->
+                                <div class="col-4">
+                                    <label for="" class="" >Department Type</label>
+                                    <select class="form-control selectpicker" id="select-department" data-live-search="true" name="department_id">
+                                         <option selected disabled>Please Select the options</option>
+                                        {% for department in display_all_departments %}
+                                            {% if requestForm %}
+                                                <option value="{{ department._id }}"{% if  department._id == requestForm.department_id %} selected="selected" {% endif %}>
+                                                    {{ department.department_name }}</option>
+                                            {% else %}
+                                                <option value="{{ department._id }}"{% if  department._id == one_employee.department_id %} selected="selected"
+                                                        {% endif %}>{{ department.department_name }}</option>
+                                            {% endif %}
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                           </div>
+
+                           <div class="form-group pt-3 row">
+                               <!-- Date of Joining Date -->
+                                <div class="col-4">
+                                    {% if requestForm %}
+                                        {{ form.date_of_joining.label }} {{ form.date_of_joining(class="datepicker form-control" )}} {{ form.hidden_tag() }}
+                                    {% else %}
+                                        {{ form.date_of_joining.label }} {{ form.date_of_joining(class="datepicker form-control", value=one_employee.date_of_joining.split('T')[0]) }} {{ form.hidden_tag() }}
+                                    {% endif %}
+                                </div>
+
+                                <!-- Last date -->
+                                <div class="col-4">
+                                    {% if requestForm %}
+                                        {{ form.last_date.label }} {{ form.last_date(class="datepicker form-control last-date-class" )}} {{ form.hidden_tag() }}
+                                    {% else %}
+                                        {{ form.last_date.label }} {{ form.last_date(class="datepicker form-control last-date-class", value=one_employee.last_date) }} {{ form.hidden_tag() }}
+                                    {% endif %}
+                                </div>
+
+                                <!-- Official email address -->
+                                <div class="col-4 opacity-low">
+                                    {% if requestForm %}
+                                        {{ form.official_email_address.label }} {{ form.official_email_address(class="form-control" )}} {{ form.hidden_tag() }}
+                                    {% else %}
+                                        {{ form.official_email_address.label }} {{ form.official_email_address(class="form-control", value=one_employee.official_email_address)}} {{ form.hidden_tag() }}
+                                    {% endif %}
+                                </div>
+                           </div>
+                       </div>
+                   </div>
+
+                    <div class="tab-pane pb-3 pt-3" id="c">
+                        <!-- Bank Details-->
+                        <div class="checked_as-inactive">
+                            <div class="row">
+                                <div class="col-4">
+                                    {% if requestForm %}
+                                        {{ form.bank_name.label }} {{ form.bank_name(class="form-control" )}} {{ form.hidden_tag() }}
+                                    {% else %}
+                                        {{ form.bank_name.label }} {{ form.bank_name(class="form-control", value=one_employee.bank_details.bank_name)}} {{ form.hidden_tag() }}
+                                    {% endif %}
+                                </div>
+                                <div class="col-4">
+                                    {% if requestForm %}
+                                        {{ form.account_number.label }} {{ form.account_number(class="form-control" )}} {{ form.hidden_tag() }}
+                                    {% else %}
+                                        {{ form.account_number.label }} {{ form.account_number(class="form-control", value=one_employee.bank_details.account_number)}} {{ form.hidden_tag() }}
+                                    {% endif %}
+                                </div>
+                                <div class="col-4">
+                                    {% if requestForm %}
+                                        {{ form.UAN_number.label }} {{ form.UAN_number(class="form-control" )}} {{ form.hidden_tag() }}
+                                    {% else %}
+                                        {{ form.UAN_number.label }} {{ form.UAN_number(class="form-control", value=one_employee.bank_details.UAN_number)}} {{ form.hidden_tag() }}
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="tab-pane pb-3 pt-3" id="d">
+                        <!-- Salary Details-->
+                        <div class="checked_as-inactive">
+                            <div id="salary_complete_details">
+                            <div class="row">
+                                <div class="col-3">
+                                    {{ form.salary.label }}
+                                    {% if requestForm %}
+                                        {{ form.salary(class="form-control", id="salaryId", type="number")}} {{ form.hidden_tag() }}
+                                    {% else %}
+                                        <input id="salaryId" class="form-control" min="0" name="salary" type="number" value="{{one_employee.salary}}">
+                                    {% endif %}
+                                </div>
+                                <div class="col-3">
+                                    {{ form.bonus.label }}
+                                    {% if requestForm %}
+                                        {{ form.bonus(class="form-control", id="bonusId", type="number")}} {{ form.hidden_tag() }}
+                                    {% else %}
+                                        <input id="bonusId" class="form-control" min="0" name="bonus" type="number" value="{{one_employee.bonus}}">
+                                    {% endif %}
+                                </div>
+
+                                <div class="col-3">
+                                    {{ form.basic_allowance.label }}
+                                    {% if requestForm %}
+                                        {{ form.basic_allowance(class="form-control", id="basicAllowanceId", type="number")}} {{ form.hidden_tag() }}
+                                    {% else %}
+                                        <input id="basicAllowanceId" class="form-control" min="0" name="basic_allowance" type="number" value="{{one_employee.basic_allowance}}">
+                                    {% endif %}
+                                </div>
+
+                                <div class="col-3">
+                                    {{ form.medical_allowance.label }}
+                                    {% if requestForm %}
+                                        {{ form.medical_allowance(class="form-control", id="medicalAllowanceId", type="number")}} {{ form.hidden_tag() }}
+                                    {% else %}
+                                        <input id="medicalAllowanceId" class="form-control" min="0" name="medical_allowance" type="number" value="{{one_employee.medical_allowance}}">
+                                    {% endif %}
+                                </div>
+
+                                <div class="col-3">
+                                    {{ form.provident_fund.label }}
+                                    {% if requestForm %}
+                                        {{ form.provident_fund(class="form-control", id="pfId", type="number")}} {{ form.hidden_tag() }}
+                                    {% else %}
+                                        <input id="pfId" class="form-control" min="0" name="provident_fund" type="number" value="{{one_employee.provident_fund}}">
+                                    {% endif %}
+
+                                </div>
+
+                                <div class="col-3">
+                                    {{ form.tax.label }}
+                                    {% if requestForm %}
+                                        {{ form.tax(class="form-control", id="taxId", type="number")}} {{ form.hidden_tag() }}
+                                    {% else %}
+                                        <input id="taxId" class="form-control" min="0" name="tax" type="number" value="{{one_employee.tax}}">
+                                    {% endif %}
+                                </div>
+
+                            </div>
+                        </div>
+
+                            <!-- Hourly Details-->
+                            <div id="hourly_pay_details">
+                            <div class="row">
+                                <div class="col-3">
+                                    {{ form.hourly_pay.label }}
+                                    {% if requestForm %}
+                                        {{ form.hourly_pay(class="form-control", id="hourlyRateId", type="number")}} {{ form.hidden_tag() }}
+                                    {% else %}
+                                        <input id="hourlyRateId" class="form-control" min="0" name="hourly_pay" type="number" value="{{one_employee.hourly_pay}}">
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        </div>
+                    </div>
+
+
+
+
+
+                    <!-- Employee Calender -->
+                    <div class="tab-pane pb-3 pt-3 text-center mt-3" id="e">
+                        <a href="{{ url_for('admin.getEditEmployeeEventCalendar', empId=one_employee._id) }}" class="btn btn-success"><i class="fas fa-calendar-alt"></i> &nbsp;  Click here to view the work schedule </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Buttons -->
+            <div class="d-flex all-btns">
+                <div class="form-group buttons-edit">
+                    <input type="submit" value="Update" class="btn btn-primary"/>
+                </div>
+                <div class="form-group buttons-edit">
+                    <a href="{{ url_for('admin.adminHome') }}" class="btn btn-secondary">Cancel</a>
+                </div>
+                <div class="form-group buttons-edit">
+                    {% if one_employee._id != 0 %}
+                    <a class="btn btn-danger" href="/deleteExistingEmployee/{{ one_employee._id }}"><i class="fas fa-trash"></i>  Delete</a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        <a id="back-to-top" href="#" class="btn btn-light btn-lg back-to-top" role="button" ><i class="fas fa-chevron-up"></i></a>
+        </form>
+    </div>
+
+{% endblock content %}

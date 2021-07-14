@@ -1,0 +1,177 @@
+{% extends "shared-component/only_admin_header.html" %}
+{% block title %} Employee Profile {% endblock title %}
+{% block content %}
+<script src="https://kit.fontawesome.com/dcd863c3d4.js" crossorigin="anonymous"></script>
+
+<link rel="stylesheet" type="text/css" rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+<link rel="stylesheet" type="text/css" rel="stylesheet" href="{{ url_for('static', filename='css/employee.css') }}">
+<script src="{{ url_for('static', filename='js/index.js') }}"></script>
+<style>
+    #welcome{
+        color: black;
+        text-align: center;
+        padding-top: 30px;
+    }
+    .align-div{
+        position: absolute;
+        padding-left: 150px;
+    }
+
+
+    .new-line{
+        width:100%;
+        height:2%;
+
+    }
+    .new-column-head{
+        width:25%;
+        height:2%;
+
+    }
+    .new-column{
+        width:25%;
+        height:2%;
+
+        margin:25%;
+    }
+    .strip-row{
+        background:#b5e9ff;
+    }
+</style>
+<table style="margin-top:5px;">
+    {% for employee in display_all_employees %}
+
+    <tr class="new-line">
+        <td class="new-column">
+            <h1 id="welcome">Welcome {{ employee.first_name }} {{ employee.last_name }}</h1>
+        </td>
+        <td class="new-column">
+                {% if employee.profile_image_name %}
+                    <img src="{{url_for('file', filename=employee['profile_image_name'])}}" width="300px" height="225px">
+                {% elif employee.gender == "Female" %}
+                    <img src="{{ url_for('static', filename='img/female_avatar.jpg') }}" alt="profile picture" width="300px" height="225px">
+                {% elif employee.gender == "Male" %}
+                    <img src="{{ url_for('static', filename='img/male_avatar.jpg') }}" alt="profile picture" width="300px" height="225px">
+                {% else %}
+                    <img src="{{ url_for('static', filename='img/avatar.png') }}" alt="profile picture" width="300px" height="225px">
+                {% endif %}
+        </td>
+
+    </tr>
+
+    <tr class="new-line">
+        <td>
+            <td class="font-size-large-bold new-column-head">
+                <label> Name: </label>
+            </td>
+            <td class="font-size-large-bold new-column">
+                <b>{{ employee.first_name }} {{ employee.last_name }}</b>
+            </td>
+
+        </td>
+
+
+    </tr>
+    <tr class="new-line">
+        <td>
+            <td class="font-size-large-bold new-column-head strip-row">
+                <label> Address: </label>
+            </td>
+            <td class="font-size-small new-column strip-row">
+                {{ employee.email_address }}
+            </td>
+        </td>
+
+    </tr>
+    <tr class="new-line">
+        <td>
+            <td class="font-size-large-bold new-column ">
+                <label> Date of Joining: </label>
+            </td>
+            <td class="font-size-small new-column ">
+                {{ employee.date_of_joining }}
+            </td>
+
+        </td>
+
+    </tr>
+    <tr class="new-line">
+        <td>
+            <td class="font-size-large-bold new-column strip-row">
+                <label> Role: </label>
+            </td>
+            <td class="font-size-small new-column strip-row">
+                {{ employee.role }}
+            </td>
+        </td>
+
+    </tr>
+    <tr class="new-line">
+        <td>
+            <td class="font-size-large-bold new-column">
+                <label> Status: </label>
+            </td>
+            <td class="font-size-small new-column">
+                        {% if employee.is_active %}
+                            Active
+                        {% endif %}
+
+                        {% if not employee.is_active %}
+                            In Active
+                        {% endif %}
+            </td>
+        </td>
+
+    </tr>
+    <tr class="new-line">
+        <td>
+            <td class="font-size-large-bold new-column-head strip-row">
+                <label> Department: </label>
+            </td>
+            <td class="font-size-large-bold  new-column strip-row">
+                {% if employee._id != 0 %}
+                <a class="edit-department-name" href="{{ url_for('editingDepartmentGET', id=employee.department_id) }}">{{ employee.department_name }}</a>
+                {% else %}
+                <div class="text-center full-width">-</div>
+                {% endif %}
+            </td>
+        </td>
+
+    </tr>
+    <tr class="new-line">
+        <td>
+            <td class="font-size-large-bold new-column-head">
+                <label> Official Email ID: </label>
+            </td>
+            <td class="font-size-small  new-column">
+                {{ employee.official_email_address }}
+            </td>
+        </td>
+
+    </tr>
+    <tr class="new-line">
+        <td>
+            <td class="font-size-large-bold new-column-head strip-row">
+                <label> Employee ID: </label>
+            </td>
+            <td class="font-size-small  new-column strip-row">
+                {{ employee._id }}
+            </td>
+        </td>
+
+    </tr>
+    <tr>
+        <td>
+
+        </td>
+        <td class="col-1 align-vertical-center text-center-div">
+            <a href="{{ url_for('employees.editEmployee', id=session['employee_id']) }}"><i class="fas fa-user-edit text-dark"></i> </a>
+        </td>
+    </tr>
+
+    {% endfor %}
+</table>
+
+
+<a id="back-to-top" href="#" class="btn btn-light btn-lg back-to-top" role="button" ><i class="fas fa-chevron-up"></i></a>
+{% endblock content %}

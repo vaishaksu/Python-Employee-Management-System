@@ -1,0 +1,150 @@
+<html>
+<html lang="en">
+
+  <head>
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <link href='https://fonts.googleapis.com/css'),?family='Raleway:100,200,300,400,500,600,700,800,900&display=swap' rel="stylesheet">
+
+    <title>EMS homepage</title>
+    <link rel="stylesheet" href="{{url_for('static',filename='assets/css/bootstrap.min.css')}}">
+
+    <link rel="stylesheet" type="{{url_for('static',filename='text/css" href="assets/css/font-awesome.css')}}">
+
+    <link rel="stylesheet" href="{{url_for('static',filename='assets/css/templatemo-breezed.css')}}">
+
+    <link rel="stylesheet" href="{{url_for('static',filename='assets/css/owl-carousel.css')}}">
+
+    <link rel="stylesheet" href="{{url_for('static',filename='assets/css/lightbox.css')}}">
+
+    </head>
+    
+    <body>
+    <div id="preloader">
+        <div class="jumper">
+            <div></div>
+            <div></div>
+            <div></div>
+        </div>
+    </div>
+    <div id="search">
+        <button type="button" class="close">×</button>
+        <fieldset>
+            <input type="search" name="q" placeholder="SEARCH KEYWORD(s)" aria-label="Search through site content">
+        </fieldset>
+        <fieldset>
+            <button type="submit" class="main-button">Search</button>
+        </fieldset>
+    </div>
+    <div class="main-banner header-text" id="top">
+        <div class="Modern-Slider">
+          <!-- Item -->
+          <div class="item">
+            <div class="img-fill">
+                <img src='static/assets/images/slide-01.jpg' alt="">
+                <div class="text-content">
+                  <h1>Welcome To EMS</h1>
+                    <br>
+                  <h3>"Employees are the asset of an organisation"</h3>
+                  <a href="#features" class="main-stroked-button">Learn More</a>
+                  <a href="{{url_for('redirect_login')}}" class="main-filled-button">Login</a>
+                </div>
+            </div>
+          </div>
+          <div class="item">
+            <div class="img-fill">
+                <img src='static/assets/images/slide-02.jpg' alt="">
+                <div class="text-content">
+                    <b><h2>Employee Management System</h2></b>
+                    <br>
+                  <h5>Your feedbacks...</h5>
+                  <form class="subscribe-form">
+                    <div>
+                        <fieldset >
+                          <input style="width: 40%;" name="email" type="text" id="email" placeholder="Enter your email..." required="">
+                        </fieldset>
+                        <br>
+                        <fieldset>
+                            <a href="#" class="main-filled-button">Send</a>
+                        </fieldset>
+                    </div>
+                  </form>
+                </div>
+            </div>
+          </div>
+        </div>
+    </div>
+    <section class="section" id="features">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-4 col-md-6 col-sm-12 col-xs-12" data-scroll-reveal="enter left move 30px over 0.6s after 0.4s">
+                    <div class="features-item">
+                        <div class="features-icon">
+                            <img src="static/assets/images/features-icon-1.png" alt="">
+                        </div>
+                        <div class="features-content">
+                            <h4>Employee Management</h4>
+                            <p>Helps the admin to create, update and delete employees in the organisation to improve company goals</p>
+                            <a href="#" class="text-button-icon">
+                                Learn More <i class="fa fa-arrow-right"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-4 col-md-6 col-sm-12 col-xs-12" data-scroll-reveal="enter bottom move 30px over 0.6s after 0.4s">
+                    <div class="features-item">
+                        <div class="features-icon">
+                            <img src="static/assets/images/features-icon-1.png" alt="">
+                        </div>
+                        <div class="features-content">
+                            <h4>Assigning Task</h4>
+                            <p>Choose the right person for the job. Part of being a good leader is understanding your employees' strengths, weaknesses, and preferences.</p>
+                            <a href="#" class="text-button-icon">
+                                Learn More <i class="fa fa-arrow-right"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-4 col-md-6 col-sm-12 col-xs-12" data-scroll-reveal="enter right move 30px over 0.6s after 0.4s">
+                    <div class="features-item">
+                        <div class="features-icon">
+                            <img src="static/assets/images/features-icon-1.png" alt="">
+                        </div>
+                        <div class="features-content">
+                            <h4>Efficient Management</h4>
+                            <p> Performing or functioning in the best possible manner with the least waste of time and effort. The difference between effectiveness and efficiency can be summed up shortly, sweetly and succinctly</p>
+                            <a href="#" class="text-button-icon">
+                                Learn More <i class="fa fa-arrow-right"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <!-- jQuery -->
+    <script src="{{ url_for('static',filename='assets/js/jquery-2.1.0.min.js')}}"></script>
+
+    <!-- Bootstrap -->
+    <script src="{{url_for('static',filename='assets/js/popper.js')}}"></script>
+    <script src="{{url_for('static',filename='assets/js/bootstrap.min.js')}}"></script>
+
+    <!-- Plugins -->
+    <script src="{{url_for('static',filename='assets/js/owl-carousel.js')}}"></script>
+    <script src="{{url_for('static',filename='assets/js/scrollreveal.min.js')}}"></script>
+    <script src="{{url_for('static',filename='assets/js/waypoints.min.js')}}"></script>
+    <script src="{{url_for('static',filename='assets/js/jquery.counterup.min.js')}}"></script>
+    <script src="{{url_for('static',filename='assets/js/imgfix.min.js')}}"></script>
+    <script src="{{url_for('static',filename='assets/js/slick.js')}}"></script>
+    <script src="{{url_for('static',filename='assets/js/lightbox.js')}}"></script>
+    <script src="{{url_for('static',filename='assets/js/isotope.js')}}"></script>
+    
+    <!-- Global Init -->
+    <script src="{{url_for('static',filename='assets/js/custom.js')}}"></script>
+
+    <script src="{{url_for('static',filename='assets/js/homepage.js')}}"></script>
+  </body>
+</html>

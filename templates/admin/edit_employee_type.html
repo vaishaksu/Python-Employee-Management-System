@@ -1,0 +1,40 @@
+{% extends "shared-component/only_admin_header.html" %}
+{% block title %}EMS-Edit Employee Type {% endblock title %}
+{% block content %}
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
+<link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" rel="stylesheet" />
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.10.0/js/bootstrap-select.min.js"></script>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.10.0/css/bootstrap-select.min.css" rel="stylesheet" />
+<link rel="stylesheet" type="text/css" rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+<script src="{{ url_for('static', filename='js/index.js') }}"></script>
+    <div class="container">
+        <h3 class="pl-1">Edit a Employee Type </h3>
+        <form method="POST" action="{{ url_for('editingDepartmentPOST', id=one_employee_type._id) }}"  name="myForm">
+            {{ form.csrt_token }}
+
+            {% if error %}
+                {% for errors in error %}
+                    <div class="alert alert-danger" role="alert"><strong>Error:</strong> {{ errors }}</div>
+                {% endfor %}
+            {% endif %}
+            <div class="form-group pt-3 row">
+                <div class="col-4">
+                    {{ form.employee_type_description.label }} {{ form.employee_type_description(class="form-control", value=one_employee_type.employee_type_description)}} {{ form.hidden_tag() }}
+                </div>
+            </div>
+
+            <!-- Buttons -->
+            <div class="d-flex pt-3 pl-10">
+
+                <div class="form-group buttons-edit">
+                    <input type="submit" value="Update" class="btn btn-primary"/>
+                </div>
+                <div class="form-group buttons-edit">
+                    <a href="{{ url_for(came_from) }}" class="btn btn-secondary">Cancel</a>
+                </div>
+            </div>
+        </form>
+    </div>
+{% endblock %}

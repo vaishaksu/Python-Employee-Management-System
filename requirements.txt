@@ -1,0 +1,7 @@
+flask
+jinja2
+pymongo
+Flask-PyMongo
+dnspython
+flask-restful
+matplotlib

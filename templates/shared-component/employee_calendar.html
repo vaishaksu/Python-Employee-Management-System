@@ -1,0 +1,116 @@
+{% extends "shared-component/only_admin_header.html" %}
+{% block title %} EMS-Employee Calendar {% endblock title %}
+{% block content %}
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" rel="stylesheet" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.10.0/js/bootstrap-select.min.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.10.0/css/bootstrap-select.min.css" rel="stylesheet" />
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fullcalendar@5.5.1/main.css">
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.5.1/main.min.js"></script>
+    <script src="https://kit.fontawesome.com/dcd863c3d4.js" crossorigin="anonymous"></script>
+    <link rel="stylesheet" type="text/css" rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <script src="{{ url_for('static', filename='js/index.js') }}"></script>
+    <style>
+        a {
+            color: black;
+        }
+    </style>
+    <div class="container-fluid calendar-container-fluid m-5">
+        <div class="mb-1">
+			{% if login_employee_only %}
+				<a class="btn btn-primary" href="{{url_for('employees.editEmployee', id=employee_id)}}" class="btn btn-primary"> <i class="fas fa-chevron-left"></i>&nbsp;  Back to the Employee </a>
+			{% else %}
+			<!-- If this is coming from Admin page -->
+				<a class="btn btn-primary" href="{{url_for('editEmployee', id=employee_id)}}" class="btn btn-primary"> <i class="fas fa-chevron-left"></i>&nbsp;  Back to the Employee </a>
+			{% endif %}
+
+        </div>
+
+        <div id="calendar"></div>
+
+        <!--  # Scroll to the top-->
+        <a id="back-to-top" href="#" class="btn btn-light btn-lg back-to-top" role="button" ><i class="fas fa-chevron-up"></i></a>
+    </div>
+
+    <script>
+        var calendarElement = document.getElementById("calendar");
+        var calendar = new FullCalendar.Calendar(calendarElement, {
+            events: [
+                {% for event in events %}
+					{
+						id: '{{ event._id }}',
+						title: '{{event.title}}',
+						start: '{{event.start}}',
+						extendedProps: {
+							_id: '{{ event._id }}',
+							employee_id: {{ event.employee_id }},
+							old_start: '{{event.start}}',
+							end: '{{ event.end }}',
+							manager_id: '{{ event.manager_id }}',
+							title: '{{ event.title }}'
+						 },
+					},
+                {% endfor %}
+            ],
+			timeZone: 'UTC',
+            headerToolbar: {
+				left: 'prev,next today',
+				center: 'title',
+				right: 'dayGridMonth,timeGridWeek,timeGridDay'
+            },
+            editable: true,
+            dayMaxEvents: true, // when too many events in a day, show the popover
+            eventDrop: function(info) {
+				{% if drag_drop_enable %}
+					alert(info.event.title + " was dropped on " + info.event.start.toISOString());
+					if (!confirm("Are you sure about this change?")) {
+					info.revert();
+					}
+					
+					var eventData = {
+							title: info.event.title ,
+							start: info.event.start.toISOString()
+					};
+					eventData = {...eventData, ...info.event.extendedProps}
+
+					$.ajax({
+						type: "POST",
+						url: '{{url_for("admin.return_data")}}',
+						data: JSON.stringify({'eventData' : eventData}),
+						contentType: "application/json",
+						dataType: 'json',
+						success: function(response) {
+							// do something
+						},
+						error: function (xhr, status, error) {
+							console.log(error);
+						}
+					});
+				{% endif %}
+			},
+			eventClick: function(info) {
+				info.jsEvent.preventDefault(); // don't let the browser navigate
+				var eventData = {
+                    title: info.event.title ,
+                    start: info.event.start.toISOString(),
+				};
+				eventData = {...eventData, ...info.event.extendedProps}
+
+				$.ajax({
+				type: "GET",
+				url: '/employees/getExistingEvent/'+ info.event.extendedProps._id+ '/' + 0 + "/" + 'empId' + '/' + info.event.extendedProps.employee_id,
+				success: function(response) {
+					// do something
+					window.open(window.location.origin+'/employees/getExistingEvent/'+ info.event.extendedProps._id + '/' + 0 + "/" + 'empId' + '/' + info.event.extendedProps.employee_id,"_self");
+					},
+				error: function (xhr, status, error) {
+					}
+				});
+			}
+		});
+        calendar.render();
+    </script>
+{% endblock content %}

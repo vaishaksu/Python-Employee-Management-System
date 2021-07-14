@@ -1,0 +1,205 @@
+{% extends "shared-component/only_admin_header.html" %}
+{% block title %} EMS - My Profile Info {% endblock title %}
+{% block content %}
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" rel="stylesheet" />
+    <script src="https://kit.fontawesome.com/dcd863c3d4.js" crossorigin="anonymous"></script>
+    <link rel="stylesheet" type="text/css" rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <link rel="stylesheet" type="text/css" rel="stylesheet" href="{{ url_for('static', filename='css/yourProfile.css') }}">
+    <div class="container back-emp-home">
+        <div>
+            <a href="{{ url_for('employees.home') }}" class="btn btn-default"><i class="fas fa-arrow-left"></i>  Back to <b>{{ employee.first_name }} {{ employee.last_name }}'s</b> Home page</a>
+        </div>
+    </div>
+    <div class="container profile-bg-color"  >
+
+        <div class="child-div-profile box-flex-it row" style="height: 450px;">
+            <div class="right-side col-2"></div>
+            <div class="left-side col-10">
+               
+            </div>
+        </div>
+        <div class="clear" style="clear: both;"></div>
+        <div class="d-flex move-little col-10"> 
+            <div class="row" style="width: 100%;">
+                <div class="col-5">
+                    {% if employee.profile_image_name %}
+                        <img src="{{url_for('file', filename=employee['profile_image_name'])}}" class="increase-height-img" width="100%" height="150px">
+                    {% elif employee.gender == "Female" %}
+                        <img src="{{ url_for('static', filename='img/female_avatar.jpg') }}" class="increase-height-img" alt="profile picture" width="100%" height="150px">
+                    {% elif employee.gender == "Male" %}
+                        <img src="{{ url_for('static', filename='img/male_avatar.jpg') }}" class="increase-height-img" alt="profile picture" width="100%" height="150px">
+                    {% else %}
+                        <img src="{{ url_for('static', filename='img/avatar.png') }}" class="increase-height-img" alt="profile picture" width="100%" height="150px">
+                    {% endif %}
+                </div>
+                <div class="col-7 adjust-padding-left-7">
+                    <div>
+                        <h1 class="mt-5">{{ employee.first_name }} {{ employee.last_name }}</h1>
+                    </div>
+        
+                    <div>
+                        <h4> {{ employee.role_name }} </h4>
+                    </div>
+
+                    <div>
+                        {% if employee.about_me %}
+                            <p>{{ employee.about_me }}</p>
+                        {% else %}
+                            <p>Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum</p>
+                        {% endif %}
+                    </div>
+        
+                    <div class="parent-profile-header row">
+                        <div class="header-child col-5">
+                            Reporting Manager
+                        </div>
+                        <div class="col-7">
+                            <p> {{ employee.manager_fullname }} <span> ( {{ employee.mgr_role_name }} ) </span></p>
+                        </div>
+                    </div>
+       
+                    <div class="parent-profile-header row">
+                        <div class="header-child col-5">
+                            Still Active?
+                        </div>
+                        <div class="col-7">
+                            <p>
+                                {% if employee.is_active %}
+                                    Yes
+                                {% endif %}
+            
+                                {% if not employee.is_active %}
+                                    No
+                                {% endif %}
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+       </div>
+
+    </div>
+
+    <div class="container ">
+        <div class="second-div-container">
+            <div class="clear" style="clear: both;"></div>
+
+            <div class="parent-profile-header row">
+                <div class="header-child col-3">
+                    Department
+                </div>
+                <div class="col-9">
+                    <p> {{ employee.department_name }} </p>
+                </div>
+            </div>
+
+            <div class="parent-profile-header row">
+                <div class="header-child col-3">
+                    Data Of Birth
+                </div>
+                    <div class="col-9">
+                    <p>{{ employee.date_of_birth }}</p>
+                </div>
+            </div>
+
+            <div class="parent-profile-header row">
+                <div class="header-child col-3">
+                    Data Of Joining
+                </div>
+                    <div class="col-9">
+                    <p>{{ employee.date_of_joining }}</p>
+                </div>
+            </div>
+
+            <div class="parent-profile-header row">
+                <div class="header-child col-3">
+                    Gender
+                </div>
+                    <div class="col-9">
+                    <p>{{ employee.gender }}</p>
+                </div>
+            </div>
+
+
+            <div class="parent-profile-header row">
+                <div class="header-child col-3">
+                    Employee Type
+                </div>
+                    <div class="col-9">
+                    <p>{{ employee.employee_type_description }}</p>
+                </div>
+            </div>
+
+
+            <div class="parent-profile-header row">
+                <div class="header-child col-3">
+                    Username
+                </div>
+                    <div class="col-9">
+                    <p>{{ employee.username }}</p>
+                </div>
+            </div>
+
+
+            <div class="parent-profile-header row">
+                <div class="header-child col-3">
+                    Official Email Address
+                </div>
+                    <div class="col-9">
+                    <p>{{ employee.official_email_address }}</p>
+                </div>
+            </div>
+
+
+            <div class="parent-profile-header row">
+                <div class="header-child col-3">
+                    Manager?
+                </div>
+                    <div class="col-9">
+                        <p>
+                        {% if employee.is_manager %}
+                            Yes
+                        {% endif %}
+    
+                        {% if not employee.is_manager %}
+                            No
+                        {% endif %}
+                        </p>
+                </div>
+            </div>
+
+            <div class="">
+                    <div class="row address-row">
+                    <div class="col-3 header-child ">
+                        Current Address
+                    </div>
+                    <div class="col-9">
+                        <p>
+                            {% if employee.address.current_address %}
+                                {{ employee.address.current_address }}</p>
+                            {% else %}
+                                -
+                            {% endif %}
+                    </div>
+                </div>
+                <div class="row address-row">
+                    <div class="col-3 header-child ">
+                        Permanent Address
+                    </div>
+                    <div class="col-9">
+                        <p>
+                            {% if employee.address.permanent_address %}
+                                {{ employee.address.permanent_address }}
+                            {% else %}
+                                -
+                            {% endif %}
+                        </p>
+                    </div>
+                </div>
+            </div>
+            </div>
+        </div>
+{% endblock content %}

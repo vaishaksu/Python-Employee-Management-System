@@ -1,0 +1,167 @@
+{% extends "shared-component/only_admin_header.html" %}
+{% block title %}EMS-Edit Event Creation {% endblock title %}
+{% block content %}
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
+<link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" rel="stylesheet" />
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.10.0/js/bootstrap-select.min.js"></script>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.10.0/css/bootstrap-select.min.css" rel="stylesheet" />
+<script src="https://kit.fontawesome.com/dcd863c3d4.js" crossorigin="anonymous"></script>
+<link rel="stylesheet" type="text/css" rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+<script src="{{ url_for('static', filename='js/index.js') }}"></script>
+    <!--suppress XmlInvalidId -->
+    <script>
+        $(function() {
+          $('.selectpicker').selectpicker();
+        });
+
+        function selectEmployeeEvent (val) {
+            var managers = JSON.parse('{{ display_all_managers | tojson | safe}}');
+            var employees = JSON.parse('{{ display_all_employees | tojson | safe}}');
+
+            var selected_employee = parseInt(document.getElementById("select-employee").value)
+            var selected_emp_arr = employees.filter( emp => emp._id == selected_employee );
+            var selected_mgr = managers.findIndex( mgr => mgr._id == selected_emp_arr[0].user_manager_id );
+
+            var activeTab = document.getElementById('select-manager'),
+                activePrevSibling = activeTab.previousElementSibling,
+                activeNextSibling = activeTab.nextElementSibling,
+                op_children = activePrevSibling.children[1].children,
+                text_change = activePrevSibling.previousElementSibling,
+                set_title_mgr_name = managers[selected_mgr].manager_first_name + ' ' + managers[selected_mgr].manager_last_name
+
+            console.log("activeTab::: ", activeTab.options);
+
+            for (var i = 0; i < op_children.length; i++) {
+                if ( i != selected_mgr + 1 ) {
+                      op_children[i].classList.add("disabled");
+                      op_children[i].classList.remove("selected");
+                      op_children[i].classList.remove("active");
+                } else {
+                    op_children[i].classList.remove("disabled");
+                    text_change.setAttribute("title", set_title_mgr_name)
+                    text_change.children[0].innerText = set_title_mgr_name
+                }
+            }
+
+            var options_selected = activeTab.options
+            for (var i = 0; i < options_selected.length; i++) {
+                if ( i != selected_mgr + 1 ) {
+                    options_selected[i].disabled = true;
+                    options_selected[i].removeAttribute("selected");
+                } else {
+                        options_selected[i].disabled = false;
+                        options_selected[i].setAttribute("selected", true);
+
+                        console.log("121212121: ", options_selected[i]);
+                }
+            }
+
+            console.log("options_selected:::: ", options_selected);
+
+            if (op_children[0].classList.contains('selected')) {
+                op_children[0].classList.remove('selected')
+            }
+            op_children[selected_mgr + 1].classList.add('selected')
+            op_children[selected_mgr + 1].classList.add('active')
+        }
+
+    </script>
+
+    <style>
+        .btn.dropdown-toggle.btn-default:after {
+            content: none;
+        }
+    </style>
+
+	<div class="container">
+        <h3 class="pl-1">Edit Existing Event</h3>
+        <form method="POST" action="/postAnExistingEvent/{{ toggle }}/{{ fetched_data._id }}"  name="myForm">
+            {{ form.csrt_token }}
+
+              {% if error %}
+                <div class="alert alert-danger" role="alert"><strong>Error:</strong> {{ error }}</div>
+              {% endif %}
+
+            <div class="form-group pt-3 row">
+                <div class="col-4">
+                    <label for="" class="" >Employee Name</label>
+                          <select class="form-control selectpicker" id="select-employee" data-live-search="true" name="employee_id" onchange="return selectEmployeeEvent()">
+                               <option selected disabled>Open this select menu</option>
+                                {% for employee in display_all_employees %}
+                                    {% if employee._id %}
+                                        <option value="{{ employee._id }}" {% if  employee._id == fetched_data.employee_id %} selected="selected" {% endif %}>
+                                            {{ employee.first_name }} {{ employee.last_name }}</option>
+                                    {% endif %}
+                                {% endfor %}
+                        </select>
+                </div>
+
+                <div class="col-4">
+                    <label for="" class="" >Reporting Manager</label>
+                    <select class="form-control selectpicker" id="select-manager" data-live-search="true" name="manager_id">
+                         <option selected disabled>Open this select menu</option>
+                        {% for manager in display_all_managers %}
+                                <option value="{{ manager._id }}"
+                                {% if  manager._id == fetched_data.manager_id %} selected="selected" {% else %}  disabled="disabled"  {% endif %}>{{ manager.manager_first_name }} {{ manager.manager_last_name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+            <div class="form-group pt-3 row">
+                <div class="col-4">
+                    {{ form.title.label }} {{ form.title(class="form-control", value=fetched_data['title'] ) }} {{ form.hidden_tag() }}
+                </div>
+            </div>
+
+            <div class="form-group pt-3 row">
+                <div class="col-3">
+                    {{ form.startdate.label }} {{ form.startdate(class="datepicker form-control start-date-class", id="start-date-event", value=fetched_data['start'].split("T")[0] , onchange='onstartDateChange()') }} {{ form.hidden_tag() }}
+                </div>
+                <div class="col-3">
+                    {{ form.enddate.label }} {{ form.enddate(class="datepicker form-control end-date-class", id="end-date-event", value=fetched_data['end'].split("T")[0]) }} {{ form.hidden_tag() }}
+                </div>
+
+                <div class="col-3">
+                    {{ form.start_at.label }} {{ form.start_at(class="form-control", value=fetched_data['start'].split("T")[1]) }} {{ form.hidden_tag() }}
+                </div>
+
+                <div class="col-3">
+                    {{ form.end_at.label }} {{ form.end_at(class="form-control", value=fetched_data['end'].split("T")[1]) }} {{ form.hidden_tag() }}
+                </div>
+            </div>
+
+            <div class="d-flex pt-3 pl-10">
+                {% if show_all_btns == None %}
+                    <a class="btn btn-secondary" href="{{ url_for('employees.getEditEmployeeEventCalendar', empId=coming_from_emp_edit_screen) }}"><i class="fas fa-arrow-left"></i>  Back</a>
+                {% else %}
+                    {% if toggle == 1 or toggle == 0 %}
+                        <div class="form-group buttons-edit">
+                            {{ form.submit(class="btn btn-primary") }}
+                        </div>
+                    {% endif %}
+                    {% if toggle == 1 or toggle == 0 %}
+                        <div class="form-group buttons-edit">
+                            <a class="btn btn-danger" href="/deleteEvent/{{ fetched_data._id }}/{{ toggle }}/empId/{{ coming_from_emp_edit_screen }}"><i class="fas fa-trash"></i>  Delete the Event</a>
+                        </div>
+                    {% endif %}
+
+                    <div class="form-group buttons-edit">
+                        {% if toggle == 1 %}
+                            <a class="btn btn-secondary" href="{{ url_for('admin.getFullCalendar') }}"> <i class="fas fa-arrow-left"></i>  Back</a>
+                        {% endif %}
+                        {% if toggle == 0 %}
+                            <a class="btn btn-secondary" href="{{ url_for('admin.getEditEmployeeEventCalendar', empId=coming_from_emp_edit_screen) }}"> <i class="fas fa-arrow-left"></i>  Back</a>
+                        {% endif %}
+                    </div>
+                {% endif %}
+            </div>
+
+        </form>
+
+        <!--  # Scroll to the top-->
+        <a id="back-to-top" href="#" class="btn btn-light btn-lg back-to-top" role="button" ><i class="fas fa-chevron-up"></i></a>
+    </div>
+
+{% endblock content %}

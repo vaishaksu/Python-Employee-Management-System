@@ -1,0 +1,163 @@
+{% extends "shared-component/only_admin_header.html" %}
+{% block title %}EMS-Edit Department {% endblock title %}
+{% block content %}
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
+<link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" rel="stylesheet" />
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.10.0/js/bootstrap-select.min.js"></script>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.10.0/css/bootstrap-select.min.css" rel="stylesheet" />
+<script src="https://kit.fontawesome.com/dcd863c3d4.js" crossorigin="anonymous"></script>
+
+<link rel="stylesheet" type="text/css" rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+<script src="{{ url_for('static', filename='js/index.js') }}"></script>
+    <div class="container-val">
+        {% if not session['employee_id'] %}
+            <div class="p-4">
+                <h3 class="pl-1">Edit a Department </h3>
+                <form method="POST" action="{{ url_for('editingDepartmentPOST', id=one_department._id) }}"  name="myForm">
+                    {{ form.csrt_token }}
+                    {% if error %}
+                        {% for errors in error %}
+                            <div class="alert alert-danger" role="alert"><strong>Error:</strong> {{ errors }}</div>
+                        {% endfor %}
+                    {% endif %}
+                    <div class="form-group pt-3 row">
+                        <div class="col-4">
+                            {{ form.department_name.label }} {{ form.department_name(class="form-control", value=one_department.department_name)}} {{ form.hidden_tag() }}
+                        </div>
+                    </div>
+
+                    <!-- Buttons -->
+                    <div class="d-flex pt-3 pl-10">
+
+                        <div class="form-group buttons-edit">
+                            <input type="submit" value="Update" class="btn btn-primary"/>
+                        </div>
+                        <div class="form-group buttons-edit">
+                            <a href="{{ url_for(came_from) }}" class="btn btn-secondary">Cancel</a>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        {% endif %}
+        <h3 class="text-center overall-heading">List of Employees work in <b>{{ one_department.department_name }}</b> Department <span class="no-of-employees">( {{no_of_employees}} employees)</span></h3>
+        {% if session['employee_id'] %}
+            <div class="container">
+                <a href="{{ url_for('employees.home') }}" class="btn btn-default"><i class="fas fa-arrow-left"></i>  Back to <b>{{ session['first_name'] }} {{ session['last_name'] }}'s</b> Home page</a>
+            </div>
+        {% endif %}
+        <div class="grand-parent-div">
+            {% for employee in all_emp_in_mgrs_table %}
+                <div class="parent-div">
+                    <div class="p-5 parent-parent-div">
+                       <div class="dept-img-call text-center">
+                            {% if employee.profile_image_name %}
+                                <img src="{{url_for('file', filename=employee['profile_image_name'])}}" class="img-call" name="profile_image" id="output" width="50px" height="50px">
+                            {% elif employee.gender == "Female" %}
+                                <img src="{{ url_for('static', filename='img/female_avatar.jpg') }}" class="img-call" id="output" alt="alternate" width="50px" height="50px">
+                            {% elif employee.gender == "Male" %}
+                                <img src="{{ url_for('static', filename='img/male_avatar.jpg') }}" class="img-call" id="output" alt="alternate" width="50px" height="50px">
+                            {% else %}
+                                <img src="{{ url_for('static', filename='img/avatar.png') }}" class="img-call" id="output" alt="alternate" width="50px" height="50px">
+                            {% endif %}
+                        </div>
+                       <div class="manager-info add-border-padding">
+                            <div class="text-center add-border-padding">
+                                <div class="dept-personal-info">
+                                    <b>
+                                        {% if employee.manager_first_name and employee.manager_last_name %}
+                                            {{ employee.manager_first_name }} {{ employee.manager_last_name }}
+                                        {% endif %}
+                                    </b> {% if employee.is_active %} (Active) {% else %} (In Active) {% endif %}
+                                </div>
+                                <div class="dept-personal-info">
+                                    <b>{{ employee.manager_role_description }}</b>
+                                </div>
+                            </div>
+                           <div class="basic-info-employee">
+                               <div class="dept-personal-info"><b><i class="dept-icon fas fa-users"></i> <span class="blue-color">{{ one_department.department_name }}</span></b></div>
+                               <div class="dept-personal-info"><b><i class="dept-icon fas fa-at"></i> <span class="blue-color">{{ employee.official_email_address }}</span></b></div>
+                               <div class="dept-personal-info"><b><i class="dept-icon fas fa-phone-alt"></i> <span class="blue-color">{{ employee.phone_number }}</span></b></div>
+                           </div>
+                       </div>
+                    </div>
+
+                    <div class="parent-children-div d-flex">
+                        {% for children in employee.children %}
+                            <div class="children-div">
+                                <div class="p-5 m-5 children-children-div">
+                                    <div class="dept-img-call text-center">
+                                        {% if children.profile_image_name %}
+                                            <img src="{{url_for('file', filename=children['profile_image_name'])}}" class="img-call" name="profile_image" id="output" width="50px" height="50px">
+                                        {% elif children.gender == "Female" %}
+                                            <img src="{{ url_for('static', filename='img/female_avatar.jpg') }}" class="img-call" id="output" alt="alternate" width="50px" height="50px">
+                                        {% elif children.gender == "Male" %}
+                                            <img src="{{ url_for('static', filename='img/male_avatar.jpg') }}" class="img-call" id="output" alt="alternate" width="50px" height="50px">
+                                        {% else %}
+                                            <img src="{{ url_for('static', filename='img/avatar.png') }}" class="img-call" id="output" alt="alternate" width="50px" height="50px">
+                                        {% endif %}
+                                    </div>
+                                    <div class=" text-center add-border-padding">
+                                        <div>
+                                            <b>{{ children.first_name }} {{ children.last_name }}</b>{% if children.is_active %} (Active) {% else %} (In Active) {% endif %}
+                                        </div>
+
+                                        <div>
+                                            <b>{{ children.manager_role_description }}</b>
+                                        </div>
+                                    </div>
+
+                                    <div class="basic-info-employee">
+                                       <div class="dept-personal-info"><b><i class="dept-icon fas fa-users"></i> <span class="blue-color">{{ one_department.department_name }}</span></b></div>
+                                       <div class="dept-personal-info"><b><i class="dept-icon fas fa-at"></i> <span class="blue-color">{{ children.official_email_address }}</span></b></div>
+                                       <div class="dept-personal-info"><b><i class="dept-icon fas fa-phone-alt"></i> <span class="blue-color">{{ children.phone_number }}</span></b></div>
+                                   </div>
+                                </div>
+
+                                <div class="d-flex">
+                                    {% for child in children.children %}
+                                        <div class="grand-children-div">
+                                            <div class="p-5 m-5 children-children-div">
+                                                 <div class="dept-img-call text-center">
+                                                    {% if child.profile_image_name %}
+                                                        <img src="{{url_for('file', filename=child['profile_image_name'])}}" class="img-call" name="profile_image" id="output" width="50px" height="50px">
+                                                    {% elif child.gender == "Female" %}
+                                                        <img src="{{ url_for('static', filename='img/female_avatar.jpg') }}" class="img-call" id="output" alt="alternate" width="50px" height="50px">
+                                                    {% elif child.gender == "Male" %}
+                                                        <img src="{{ url_for('static', filename='img/male_avatar.jpg') }}" class="img-call" id="output" alt="alternate" width="50px" height="50px">
+                                                    {% else %}
+                                                        <img src="{{ url_for('static', filename='img/avatar.png') }}" class="img-call" id="output" alt="alternate" width="50px" height="50px">
+                                                    {% endif %}
+                                                </div>
+
+                                                <div class=" text-center add-border-padding">
+                                                    <div>
+                                                        <b>{{ child.first_name }} {{ child.last_name }}</b>{% if child.is_active %} (Active) {% else %} (In Active) {% endif %}
+                                                    </div>
+
+                                                    <div>
+                                                        <b>{{ child.manager_role_description }}</b>
+                                                    </div>
+                                                </div>
+
+                                                <div class="basic-info-employee">
+                                                   <div class="dept-personal-info"><b><i class="dept-icon fas fa-users"></i> <span class="blue-color">{{ one_department.department_name }}</span></b></div>
+                                                   <div class="dept-personal-info"><b><i class="dept-icon fas fa-at"></i> <span class="blue-color">{{ child.official_email_address }}</span></b></div>
+                                                   <div class="dept-personal-info"><b><i class="dept-icon fas fa-phone-alt"></i> <span class="blue-color">{{ child.phone_number }}</span></b></div>
+                                               </div>
+                                            </div>
+
+                                        </div>
+                                    {% endfor %}
+                                </div>
+
+                            </div>
+                    {% endfor %}
+                    </div>
+                </div>
+        {% endfor %}
+        </div>
+
+    </div>
+{% endblock %}

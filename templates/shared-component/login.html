@@ -1,0 +1,113 @@
+{% extends "shared-component/index.html" %}
+{% block title %} Login form {% endblock title %}
+{% block content %}
+<html>
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" rel="stylesheet" />
+    <style>
+      body {font-family: Arial, Helvetica, sans-serif, }
+
+
+      input[type=text], input[type=password] {
+        width: 100%;
+        padding: 12px 20px;
+        margin: 8px 0;
+        display: inline-block;
+        border: 1px solid #ccc;
+        box-sizing: border-box;
+      }
+
+      .button {
+        background-color: teal;
+        color: white;
+        padding: 14px 20px;
+        margin: 8px 0;
+        border: none;
+        cursor: pointer;
+        width: 100%;
+      }
+
+      .button:hover {
+        opacity: 0.8;
+      }
+
+      .cancelbtn {
+        width: 100%;
+        padding: 10px 18px;
+        background-color: #f44336;
+      }
+
+      .imgcontainer {
+        text-align: center;
+        margin: 24px 0 12px 0;
+      }
+
+      img.avatar {
+        width: 25%;
+        border-radius: 50%;
+      }
+
+      .container {
+        padding: 16px;
+      }
+
+      span.psw {
+        float: right;
+        padding-top: 16px;
+      }
+      @media (min-width: 1200px) {
+        .container, .container-lg, .container-md, .container-sm, .container-xl {
+            max-width: 895px;
+        }
+      }
+    </style>
+</head>
+<body>
+
+
+<form method="POST" action="{{ url_for('login.login_validationPost') }}">
+    {{ form.csrt_token }}
+
+  <div class="container">
+      <h2>Login Form</h2>
+      <div class="imgcontainer">
+        <img src="/static/img/img_avatar2.png" alt="Avatar" class="avatar">
+      </div>
+
+        <div>
+            {% if error %}
+                {% for errors in error %}
+                    <div class="alert alert-danger" role="alert"><strong>Error:</strong> {{ errors }}</div>
+                {% endfor %}
+            {% endif %}
+      </div>
+
+        <div>
+            {{ form.username.label }} {{ form.username(class="form-control", placeholder="Enter Username")}} {{ form.hidden_tag() }}
+        </div>
+
+        <div>
+            {{ form.password.label }} {{ form.password(class="form-control", placeholder="Enter Password")}} {{ form.hidden_tag() }}
+        </div>
+
+      <input type="submit" value="Login" class="btn btn-primary button button1"/>
+    <label>
+      <input type="checkbox" checked="checked" name="remember"> Remember me
+    </label>
+      <br>
+  </div>
+
+  <div class="container">
+    <span class="psw"><a href="{{ url_for('login.forgotPasswordGET') }}">Forgot password?</a></span>
+  </div>
+  <br>
+</form>
+
+
+</body>
+</html>
+{% endblock content %}

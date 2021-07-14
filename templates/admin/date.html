@@ -1,0 +1,6 @@
+{% extends "shared-component/index.html" %}
+{% block title %}New Date {% endblock title %}
+{% block content %}
+    <h2>Start Date: {{ session['startdate'] }}</h2>
+    <h2>End Date: {{ session['enddate'] }}</h2>
+{% endblock %}
